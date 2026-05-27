@@ -90,26 +90,47 @@ export function AnalyzePage() {
             <div className="alert warn">{result.message}</div>
           )}
 
-          {result.best_move ? (
-            <div className="move-card">
-              <h2>Önerilen hamle</h2>
-              <ul>
-                <li>
-                  Taş: <strong>{result.best_move.piece_index + 1}</strong> (soldan)
-                </li>
-                <li>
-                  Konum: satır {result.best_move.row + 1}, sütun{" "}
-                  {result.best_move.col + 1}
-                </li>
-                <li>Döndürme: {result.best_move.rotation}×90°</li>
-                {result.best_move.lines_cleared > 0 && (
-                  <li className="highlight">
-                    {result.best_move.lines_cleared} satır/sütun temizlenir
+          {result.summary && (
+            <div className="move-card best-summary">
+              <h2>En iyi hamle</h2>
+              <p>{result.summary}</p>
+            </div>
+          )}
+
+          {result.piece_recommendations?.length > 0 && (
+            <div className="piece-recs">
+              <h2>Her taş nereye konmalı?</h2>
+              <p className="recs-hint">
+                Block Blast’ta her turda <strong>bir</strong> taş kullanırsın. Aşağıda
+                üç taşın da en iyi yeri — yeşil özet en yüksek skorlu hamle.
+              </p>
+              <ul className="rec-list">
+                {result.piece_recommendations.map((rec) => (
+                  <li
+                    key={rec.piece_index}
+                    className={
+                      result.best_move?.piece_index === rec.piece_index
+                        ? "rec-item rec-best"
+                        : "rec-item"
+                    }
+                  >
+                    <span className="rec-slot">{rec.slot_label}</span>
+                    {rec.piece_name && (
+                      <span className="rec-shape">{rec.piece_name}</span>
+                    )}
+                    <p className="rec-advice">{rec.advice}</p>
+                    {rec.piece_shape && (
+                      <pre className="shape-mini" aria-hidden>
+                        {rec.piece_shape
+                          .map((row) => row.map((c) => (c ? "■" : "·")).join(" "))
+                          .join("\n")}
+                      </pre>
+                    )}
                   </li>
-                )}
+                ))}
               </ul>
             </div>
-          ) : null}
+          )}
 
           <h3>Tahta</h3>
           <BoardGrid

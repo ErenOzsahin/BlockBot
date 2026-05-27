@@ -7,12 +7,24 @@ export interface MoveResponse {
   lines_cleared: number;
 }
 
+export interface PieceRecommendation {
+  piece_index: number;
+  slot_label: string;
+  piece_name: string | null;
+  piece_shape: number[][] | null;
+  move: MoveResponse | null;
+  advice: string;
+}
+
 export interface AnalyzeResponse {
   board: number[][];
   board_rect: [number, number, number, number];
   pieces: (number[][] | null)[];
+  piece_names: (string | null)[];
   best_move: MoveResponse | null;
+  piece_recommendations: PieceRecommendation[];
   alternative_moves: MoveResponse[];
+  summary: string | null;
   overlay_base64: string | null;
   message: string | null;
 }
@@ -27,7 +39,11 @@ function formatApiDetail(detail: unknown): string {
   if (typeof detail === "string") return detail;
   if (Array.isArray(detail)) {
     return detail
-      .map((d) => (typeof d === "object" && d && "msg" in d ? String((d as { msg: string }).msg) : String(d)))
+      .map((d) =>
+        typeof d === "object" && d && "msg" in d
+          ? String((d as { msg: string }).msg)
+          : String(d)
+      )
       .join(" ");
   }
   return "Analiz başarısız.";

@@ -99,6 +99,69 @@
   font-weight: 600;
 }
 
+.best-summary p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.piece-recs h2 {
+  font-size: 1rem;
+  margin: 1.25rem 0 0.5rem;
+}
+
+.recs-hint {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin: 0 0 0.75rem;
+  line-height: 1.4;
+}
+
+.rec-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.rec-item {
+  background: var(--surface);
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  border: 1px solid transparent;
+}
+
+.rec-item.rec-best {
+  border-color: var(--success);
+  box-shadow: 0 0 0 1px rgba(78, 204, 163, 0.3);
+}
+
+.rec-slot {
+  font-weight: 700;
+  color: var(--accent);
+  margin-right: 0.5rem;
+}
+
+.rec-shape {
+  font-size: 0.85rem;
+  color: var(--hint);
+}
+
+.rec-advice {
+  margin: 0.5rem 0 0;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.shape-mini {
+  margin: 0.5rem 0 0;
+  font-size: 0.75rem;
+  line-height: 1.2;
+  color: var(--muted);
+  letter-spacing: 0.05em;
+}
+
 .board-grid {
   display: grid;
   grid-template-columns: repeat(8, 1fr);

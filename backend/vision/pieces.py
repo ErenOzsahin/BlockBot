@@ -4,6 +4,7 @@ import cv2
 import numpy as np
 
 from app.config import settings
+from game.shapes import snap_to_canonical
 
 GRID_SIZE = 5
 MIN_BLOCKS = 1
@@ -13,6 +14,7 @@ MAX_BLOCKS = 9
 @dataclass
 class PieceResult:
     pieces: list[list[list[int]] | None]
+    piece_names: list[str | None]
     slot_rects: list[tuple[int, int, int, int]]
 
 
@@ -227,8 +229,14 @@ def _extract_piece_from_blobs(slot_bgr: np.ndarray) -> list[list[int]] | None:
 
     ys = [c[0] for c in centers]
     xs = [c[1] for c in centers]
-    row_gap = max(5, h * 0.2)
-    col_gap = max(5, w * 0.2)
+    areas = [cv2.contourArea(c) for c in contours if min_area <= cv2.contourArea(c) <= max_area]
+    if areas:
+        block_side = float(np.sqrt(np.median(areas)))
+        row_gap = max(4, block_side * 0.85)
+        col_gap = max(4, block_side * 0.85)
+    else:
+        row_gap = max(5, h * 0.2)
+        col_gap = max(5, w * 0.2)
     row_centers = _cluster_centers(ys, row_gap)
     col_centers = _cluster_centers(xs, col_gap)
 
@@ -322,15 +330,26 @@ def _tray_from_ratio(h: int, w: int, top_ratio: float) -> tuple[int, int, int, i
     return 0, tray_top, w, max(tray_height, int(h * 0.2))
 
 
+def _snap_piece(raw: list[list[int]] | None) -> tuple[list[list[int]] | None, str | None]:
+    if not raw:
+        return None, None
+    name, canonical = snap_to_canonical(raw)
+    return canonical, name
+
+
 def _detect_with_tray(img: np.ndarray, tray: tuple[int, int, int, int]) -> PieceResult:
     tray_left, tray_top, tray_w, tray_height = tray
     slots = _slots_from_tray(tray_left, tray_top, tray_w, tray_height)
     pieces: list[list[list[int]] | None] = []
+    piece_names: list[str | None] = []
     for slot in slots:
         x, y, sw, sh = slot
         slot_bgr = img[y : y + sh, x : x + sw]
-        pieces.append(_extract_piece_from_slot(slot_bgr))
-    return PieceResult(pieces=pieces, slot_rects=slots)
+        raw = _extract_piece_from_slot(slot_bgr)
+        canonical, name = _snap_piece(raw)
+        pieces.append(canonical)
+        piece_names.append(name)
+    return PieceResult(pieces=pieces, piece_names=piece_names, slot_rects=slots)
 
 
 def _score_piece_result(result: PieceResult) -> int:

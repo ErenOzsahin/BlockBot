@@ -84,3 +84,37 @@ def find_best_move(
 ) -> MoveSuggestion | None:
     moves = find_best_moves(board, pieces, top_n=1)
     return moves[0] if moves else None
+
+
+def find_best_move_for_piece(
+    board: list[list[int]],
+    piece: list[list[int]],
+    piece_index: int,
+) -> MoveSuggestion | None:
+    """Tek bir taş için en iyi yerleşim."""
+    candidates: list[MoveSuggestion] = []
+    for rotation, rotated in _piece_rotations(piece):
+        ph = len(rotated)
+        pw = len(rotated[0]) if rotated else 0
+        for row in range(BOARD_SIZE - ph + 1):
+            for col in range(BOARD_SIZE - pw + 1):
+                if not can_place(board, rotated, row, col):
+                    continue
+                placed = apply_move(board, rotated, row, col)
+                cleared_board, lines = clear_lines(placed)
+                score = _score_board(cleared_board, lines)
+                candidates.append(
+                    MoveSuggestion(
+                        piece_index=piece_index,
+                        rotation=rotation,
+                        row=row,
+                        col=col,
+                        score=score,
+                        lines_cleared=lines,
+                        board_after=cleared_board,
+                    )
+                )
+    if not candidates:
+        return None
+    candidates.sort(key=lambda m: m.score, reverse=True)
+    return candidates[0]
