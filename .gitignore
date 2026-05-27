@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+.env
+.venv/
+venv/
+node_modules/
+frontend/dist/
+dist/
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+.DS_Store
+Thumbs.db
+uploads/
